@@ -237,10 +237,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     top: 50,
                     left: 0,
                     right: 0,
-                    child: Image.asset(
-                      imageUrl,
-                      height: 400,
-                      fit: BoxFit.contain,
+                    child: Hero(
+                      tag: 'shoe-image-$title', // Unique tag per shoe
+                      child: Image.asset(
+                        imageUrl,
+                        height: 400,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                   Positioned(
