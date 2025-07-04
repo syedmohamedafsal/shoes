@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shoes_ui/presentation/detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -163,87 +164,104 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      width: screenSize.width * 0.75,
-      height: 300, // 🔽 Reduced total height
-      padding: const EdgeInsets.all(12.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.orbit(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailPage(
+              title: title,
+              // subtitle: subtitle,
+              price: '\$2000',
+              imageUrl: imageUrl,
+              accentColor: accentColor,
+              // watermarkLines: watermarkLines,
             ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          Text(
-            subtitle,
-            style: GoogleFonts.orbit(fontSize: 14, color: Colors.black87),
-          ),
-          const SizedBox(height: 6),
-          SizedBox(
-            height: 400, // 🔽 Reduced image block height
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  bottom: 200,
-                  right: 50,
-                  child: Opacity(
-                    opacity: 0.1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: watermarkLines
-                          .map((line) => Text(
-                                line,
-                                style: GoogleFonts.bubblegumSans(
-                                  fontSize: screenSize.width * 0.2,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.black,
-                                  height: 0.9,
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 50,
-                  left: 0,
-                  right: 0,
-                  child: Image.asset(
-                    imageUrl,
-                    height: 400, // 🔽 Smaller image
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                Positioned(
-                  bottom: 10,
-                  right: 0,
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.add, color: Colors.black, size: 24),
-                  ),
-                ),
-              ],
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        width: screenSize.width * 0.75,
+        height: 300,
+        padding: const EdgeInsets.all(12.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.orbit(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              subtitle,
+              style: GoogleFonts.orbit(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 6),
+            SizedBox(
+              height: 400,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    bottom: 200,
+                    right: 50,
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: watermarkLines
+                            .map((line) => Text(
+                                  line,
+                                  style: GoogleFonts.bubblegumSans(
+                                    fontSize: screenSize.width * 0.2,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                    height: 0.9,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    child: Image.asset(
+                      imageUrl,
+                      height: 400,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 10,
+                    right: 0,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: accentColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child:
+                          const Icon(Icons.add, color: Colors.black, size: 24),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
