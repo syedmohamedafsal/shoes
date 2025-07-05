@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shoes_ui/presentation/dashboard.dart';
 
@@ -12,45 +11,37 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
-  late AnimationController _textController;
-  late AnimationController _shoeController;
+  late AnimationController _fadeController;
+  late List<Animation<double>> _fadeAnimations;
 
-  late Animation<Offset> _textAnimation;
-  late Animation<Offset> _shoeAnimation;
+  final int _itemCount = 4; // 1: Now, 2: AIR MAX BUBBLE PACK, 3: Shoe image
 
   @override
   void initState() {
     super.initState();
 
-    _textController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 2500),
       vsync: this,
     );
 
-    _shoeController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
+    _fadeAnimations = List.generate(_itemCount, (index) {
+      final start = index * 0.1;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _fadeController,
+          curve: Interval(start, end, curve: Curves.easeInOut),
+        ),
+      );
+    });
 
-    _textAnimation = Tween<Offset>(
-      begin: const Offset(0, -1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _textController,
-      curve: Curves.easeOut,
-    ));
+    // Start fade animation
+    Future.delayed(const Duration(milliseconds: 400), () {
+      _fadeController.forward();
+    });
 
-    _shoeAnimation = Tween<Offset>(
-      begin: const Offset(0, 2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _shoeController,
-      curve: Curves.easeOutBack,
-    ));
-
-    _startAnimations();
-
-    // Navigate to Dashboard after 3.5 seconds
+    // Navigate to Dashboard after 5 seconds
     Future.delayed(const Duration(seconds: 5), () {
       Navigator.pushReplacement(
         context,
@@ -59,15 +50,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     });
   }
 
-  void _startAnimations() async {
-    await _textController.forward();
-    await _shoeController.forward();
-  }
-
   @override
   void dispose() {
-    _textController.dispose();
-    _shoeController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -76,19 +61,19 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE0E5EB),
+      backgroundColor: const Color(0xFF1A1A1A),
       body: Stack(
         children: [
-          // Top "Now" Text
+          // Top "Now"
           Positioned(
             top: screenSize.height * 0.15,
             left: screenSize.width * 0.08,
-            child: SlideTransition(
-              position: _textAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimations[0],
               child: Text(
                 'Now',
                 style: GoogleFonts.bubblegumSans(
-                  color: Colors.white,
+                  color: const Color(0xFFFDD835),
                   fontSize: 25,
                   fontWeight: FontWeight.w500,
                 ),
@@ -96,19 +81,19 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ),
           ),
 
-          // "AIR MAX BUBBLE PACK"
+          // AIR MAX BUBBLE PACK
           Positioned(
             top: screenSize.height * 0.2,
             left: screenSize.width * 0.05,
-            child: SlideTransition(
-              position: _textAnimation,
+            child: FadeTransition(
+              opacity: _fadeAnimations[1],
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'AIR MAX',
                     style: GoogleFonts.bubblegumSans(
-                      color: Colors.white,
+                      color: const Color(0xFFFDD835),
                       fontSize: screenSize.width * 0.25,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2.0,
@@ -118,7 +103,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   Text(
                     'BUBBLE',
                     style: GoogleFonts.bubblegumSans(
-                      color: Colors.white,
+                      color: const Color(0xFFFDD835),
                       fontSize: screenSize.width * 0.25,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2.0,
@@ -128,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   Text(
                     'PACK',
                     style: GoogleFonts.bubblegumSans(
-                      color: Colors.white,
+                      color: const Color(0xFFFDD835),
                       fontSize: screenSize.width * 0.28,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2.0,
@@ -140,30 +125,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             ),
           ),
 
-          // Shoe IconButton (FontAwesome)
-          // Positioned(
-          //   top: screenSize.height * 0.05,
-          //   right: screenSize.width * 0.05,
-          //   child: IconButton(
-          //     icon: const FaIcon(FontAwesomeIcons.shoePrints, color: Colors.black),
-          //     onPressed: () {
-          //       // Do something if needed
-          //     },
-          //   ),
-          // ),
-
           // Shoe Image
           Positioned(
-            bottom: -screenSize.height * 0.28,
-            right: -screenSize.width * 0.2,
-            child: SlideTransition(
-              position: _shoeAnimation,
+            bottom: -screenSize.height * 0.35,
+            right: -screenSize.width * 0.4,
+            child: FadeTransition(
+              opacity: _fadeAnimations[3],
               child: Transform.rotate(
-                angle: -0.2,
+                angle: -0.5,
                 child: Image.asset(
-                  'assets/images/shoes 3.png',
-                  width: screenSize.width * 1.8,
-                  height: screenSize.height * 0.8,
+                  'assets/images/shoes 2.png',
+                  width: screenSize.width * 2.8,
+                  height: screenSize.height * 1.2,
                   fit: BoxFit.contain,
                 ),
               ),
