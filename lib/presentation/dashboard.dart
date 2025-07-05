@@ -10,10 +10,16 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen>
+    with TickerProviderStateMixin {
   String _selectedCategory = 'Basketball';
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentPage = 0;
+
+  late AnimationController _fadeController;
+  // late Animation<double> _fadeAnimation;
+  late List<Animation<double>> _fadeAnimations;
+  late AnimationController _controller;
 
   final List<Map<String, dynamic>> _products = [
     {
@@ -21,7 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'subtitle': 'Men’s Shoe',
       'image': 'assets/images/shoes 3.png',
       'color': Colors.redAccent,
-      'watermark': ['NIKE', 'AIR' 'S' ''],
+      'watermark': ['NIKE', 'AIR'],
     },
     {
       'title': 'Nike Court',
@@ -38,6 +44,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
       'watermark': ['NIKE', 'ZOOM'],
     },
   ];
+  final int _itemCount = 14;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 2500),
+      vsync: this,
+    );
+
+    _fadeAnimations = List.generate(_itemCount, (index) {
+      final start = index * 0.06;
+      final end = (start + 0.3).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _fadeController,
+          curve: Interval(start, end, curve: Curves.easeInOut),
+        ),
+      );
+    });
+
+    // 👇 Add delay before starting animation
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _fadeController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +87,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: Image.asset(
-            'assets/images/nike_logo-bg.png',
-            height: 30,
-            width: 30,
+        leading: FadeTransition(
+          opacity: _fadeAnimations[0],
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Image.asset(
+              'assets/images/nike_logo-bg.png',
+              height: 30,
+              width: 30,
+            ),
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white),
-            onPressed: () {},
+          FadeTransition(
+            opacity: _fadeAnimations[0],
+            child: IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {},
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
-            onPressed: () {},
+          FadeTransition(
+            opacity: _fadeAnimations[2],
+            child: IconButton(
+              icon:
+                  const Icon(Icons.shopping_bag_outlined, color: Colors.white),
+              onPressed: () {},
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -72,64 +121,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Category Tabs
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                _buildCategoryTab('Basketball'),
-                const SizedBox(width: 20),
-                _buildCategoryTab('Running'),
-                const SizedBox(width: 20),
-                _buildCategoryTab('Training'),
-              ],
+          FadeTransition(
+            opacity: _fadeAnimations[3],
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                children: [
+                  _buildCategoryTab('Basketball'),
+                  const SizedBox(width: 20),
+                  _buildCategoryTab('Running'),
+                  const SizedBox(width: 20),
+                  _buildCategoryTab('Training'),
+                ],
+              ),
             ),
           ),
+
           const SizedBox(height: 80),
 
           // Carousel
-          SizedBox(
-            height: 500,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _products.length,
-              onPageChanged: (int index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final double scale = _currentPage == index ? 1.0 : 0.9;
-                final double opacity = _currentPage == index ? 1.0 : 0.6;
+          FadeTransition(
+            opacity: _fadeAnimations[4],
+            child: SizedBox(
+              height: 500,
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _products.length,
+                onPageChanged: (int index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final double scale = _currentPage == index ? 1.0 : 0.9;
+                  final double opacity = _currentPage == index ? 1.0 : 0.6;
 
-                return TweenAnimationBuilder(
-                  duration: const Duration(milliseconds: 300),
-                  tween: Tween<double>(begin: scale, end: scale),
-                  builder: (context, value, child) {
-                    return Transform.scale(
-                      scale: value,
-                      child: Opacity(
-                        opacity: opacity,
-                        child: _buildProductCard(
-                          context,
-                          _products[index]['title'],
-                          _products[index]['subtitle'],
-                          _products[index]['image'],
-                          _products[index]['color'],
-                          _products[index]['watermark'],
+                  return TweenAnimationBuilder(
+                    duration: const Duration(milliseconds: 400),
+                    tween: Tween<double>(begin: scale, end: scale),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Opacity(
+                          opacity: opacity,
+                          child: _buildProductCard(
+                            context,
+                            _products[index]['title'],
+                            _products[index]['subtitle'],
+                            _products[index]['image'],
+                            _products[index]['color'],
+                            _products[index]['watermark'],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
 
           const SizedBox(height: 20),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(screenSize),
+      bottomNavigationBar: FadeTransition(
+        opacity: _fadeAnimations[5],
+        child: _buildBottomNavigationBar(screenSize),
+      ),
     );
   }
 
@@ -143,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       },
       child: Text(
         title,
-        style: GoogleFonts.inter(
+        style: GoogleFonts.orbit(
           color: isSelected
               ? const Color(0xFFFDD835)
               : Colors.white.withOpacity(0.6),
@@ -171,11 +230,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           MaterialPageRoute(
             builder: (_) => ProductDetailPage(
               title: title,
-              // subtitle: subtitle,
               price: '\$2000',
               imageUrl: imageUrl,
               accentColor: accentColor,
-              // watermarkLines: watermarkLines,
             ),
           ),
         );
@@ -238,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     left: 0,
                     right: 0,
                     child: Hero(
-                      tag: 'shoe-image-$title', // Unique tag per shoe
+                      tag: 'shoe-image-$title',
                       child: Image.asset(
                         imageUrl,
                         height: 400,
